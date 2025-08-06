@@ -32,8 +32,6 @@ void DeviceProvider::RunFrame()
         return;
 
     UpdateTrackers();
-
-    //vr::VRDriverLog()->Log(std::to_string(m_trackers.size()).c_str());
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode()
@@ -103,4 +101,5 @@ void DeviceProvider::UpdateTrackers()
         if (it != reportMap.end())
             trackerPtr->UpdateDevice(it->second); // Send data
     }
+
 }
