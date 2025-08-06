@@ -1,0 +1,13 @@
+{
+	"jsonid" : "vrresources",
+	"statusicons" : 
+	{
+		"Tracker" : 
+		{
+			"Prop_NamedIconPathDeviceOff_String" : "{lodestar}/icons/tracker_status_off@2x.png",
+			"Prop_NamedIconPathDeviceReady_String" : "{lodestar}/icons/tracker_status_ready@2x.png",
+			"Prop_NamedIconPathDeviceStandby_String" : "{lodestar}/icons/tracker_status_standby@2x.png",
+			"Prop_NamedIconPathDeviceSearching_String" : "{lodestar}/icons/tracker_status_searching@2x.gif"
+		}
+    }	    
+}
