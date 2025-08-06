@@ -1,4 +1,4 @@
-# Lodestar SteamVR Driver
+# Lodestar OpenVR Driver
 
 This driver lets you use Lodestar trackers as native tracked devices in SteamVR.
 It connects directly to the OpenVR runtime, allowing Lodestar's 6DoF data to show up just like any other SteamVR device - no extra software or middleware needed.
