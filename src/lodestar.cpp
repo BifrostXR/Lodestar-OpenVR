@@ -51,10 +51,6 @@ const std::wstring& LodestarTracker::GetPath()
     return m_devicePath;
 }
 
-inline vr::HmdQuaternion_t HmdQuaternion_Inverse(const vr::HmdQuaternion_t& q) {
-    return vr::HmdQuaternion_t{ q.w, -q.x, -q.y, -q.z };
-}
-
 void LodestarTracker::UpdateDevice(HID::Report report)
 {
     if (!m_activated)
@@ -79,40 +75,37 @@ void LodestarTracker::UpdateDevice(HID::Report report)
             m_pose.qWorldFromDriverRotation.w = 1.f;
             m_pose.qDriverFromHeadRotation.w = 1.f;
 
-            // Position
-            m_pose.vecPosition[0] = report.pose_position[0];
-            m_pose.vecPosition[1] = report.pose_position[1];
-            m_pose.vecPosition[2] = -report.pose_position[2];
+/*
+            OPENVR COORDINATE SYSTEM
+            Up: +Y
+            Right: +X
+            Forwards: -Z
 
-            // COORDINATE SYSTEM
-            // Up: +Y
-            // Right: +X
-            // Forwards: -Z
+            LODESTAR COORDINATE SYSTEM
+            Up: +Z
+            Right +X
+            Forwards: +Y
+*/
+
+            // Position
+            m_pose.vecPosition[0] /*X*/ = report.pose_position[0];  // X
+            m_pose.vecPosition[1] /*Y*/ = report.pose_position[2];  // Z
+            m_pose.vecPosition[2] /*Z*/ = -report.pose_position[1]; // Y
 
             // Orientation
-
-            const double kSqrtHalf = 0.7071067811865476; // cos(‑90°/2)
-            const vr::HmdQuaternion_t kEnuToVrX =
+            vr::HmdQuaternion_t qLodestar =
             {
-                kSqrtHalf,        // w
-               -kSqrtHalf,        // x  (‑sin(‑90°/2))
-                0.0,              // y
-                0.0               // z
+                qLodestar.w = report.pose_orientation[3], // W
+                qLodestar.x = report.pose_orientation[0], // X
+                qLodestar.y = report.pose_orientation[1], // Y
+                qLodestar.z = report.pose_orientation[2]  // Z
             };
 
-            const vr::HmdQuaternion_t k180Y = { 0.f, 0.f, 1.f, 0.f };
+            const float s = std::sqrt(0.5f);
+            const vr::HmdQuaternion_t r = { s, -s, 0.f, 0.f };
+            const vr::HmdQuaternion_t r2 = { 0.f, -1.f, 0.f, 0.f }; // r^2
 
-            vr::HmdQuaternion_t qEnu;
-            qEnu.x = report.pose_orientation[0];
-            qEnu.y = report.pose_orientation[1];
-            qEnu.z = report.pose_orientation[2];
-            qEnu.w = report.pose_orientation[3];
-
-            const vr::HmdQuaternion_t kEnuToVR = k180Y * kEnuToVrX;
-
-            vr::HmdQuaternion_t qVR = kEnuToVR * qEnu;
-
-            m_pose.qRotation = qVR;
+            m_pose.qRotation = HmdQuaternion_Normalize((r * qLodestar) * r2); // Lodestar -> OpenVR
 
             // Linear Velocity
             m_pose.vecVelocity[0] = report.pose_linearVelocity[0];
